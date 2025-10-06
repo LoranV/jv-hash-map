@@ -1,7 +1,5 @@
 package core.basesyntax;
 
-import java.util.Objects;
-
 public class MyHashMap<K, V> implements MyMap<K, V> {
     private static final int DEFAULT_CAPACITY = 16;
     private static final double LOAD_FACTOR = 0.75;
@@ -22,7 +20,7 @@ public class MyHashMap<K, V> implements MyMap<K, V> {
         } else {
             Node<K, V> currentNode = hashMap[hashIndex(key)];
             while (currentNode != null) {
-                if (Objects.equals(currentNode.key, key)) {
+                if (java.util.Objects.equals(currentNode.key, key)) {
                     currentNode.value = value;
                     return;
                 }
@@ -70,11 +68,12 @@ public class MyHashMap<K, V> implements MyMap<K, V> {
         return size;
     }
 
+    @SuppressWarnings("unchecked")
     private void resize() {
         if (hashMap == null) {
             tableLength = DEFAULT_CAPACITY;
             threshold = (int)(tableLength * LOAD_FACTOR);
-            hashMap = new Node[tableLength];
+            hashMap = (Node<K, V>[]) new Node[tableLength];;
         } else {
             tableLength = tableLength << RESIZE_FACTOR;
             threshold = (int)(tableLength * LOAD_FACTOR);
@@ -83,19 +82,20 @@ public class MyHashMap<K, V> implements MyMap<K, V> {
     }
 
     private Node<K, V>[] transformTable(int newSize) {
-        Node<K, V>[] newTable = new Node[newSize];
+        @SuppressWarnings("unchecked")
+        Node<K, V>[] newTable = (Node<K, V>[]) new Node[newSize];
 
-        for (int i = 0; i < hashMap.length; i++) {
-            Node<K, V> node = hashMap[i];
+        for (Node<K, V> kvNode : hashMap) {
+            Node<K, V> node = kvNode;
             while (node != null) {
-                Node<K, V> next = node.next; // запам'ятати наступний вузол
-                int newIndex = hashIndex(node.key); // обчислити новий індекс
-
-                // вставити вузол на початок нового ланцюжка
+                Node<K, V> next = node.next;
+                int newIndex = (node.key == null)
+                        ? 0
+                        : Math.abs(node.key.hashCode() % newSize);
                 node.next = newTable[newIndex];
                 newTable[newIndex] = node;
 
-                node = next; // перейти до наступного у старому списку
+                node = next;
             }
         }
 
@@ -106,7 +106,7 @@ public class MyHashMap<K, V> implements MyMap<K, V> {
         return key == null ? 0 : Math.abs(key.hashCode() % tableLength);
     }
 
-    private class Node<K, V> {
+    private static class Node<K, V> {
         private K key;
         private V value;
         private Node<K, V> next;
