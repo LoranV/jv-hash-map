@@ -91,8 +91,8 @@ public class MyHashMap<K, V> implements MyMap<K, V> {
             Node<K, V> node = kvNode;
             while (node != null) {
                 Node<K, V> next = node.next;
-                int newIndex = (node.key == null) ?
-                        0 : (node.key.hashCode() & 0x7FFFFFFF) % newSize;
+                int newIndex = (node.key == null)
+                        ? 0 : (node.key.hashCode() & 0x7FFFFFFF) % newSize;
                 node.next = newTable[newIndex];
                 newTable[newIndex] = node;
 
@@ -104,7 +104,11 @@ public class MyHashMap<K, V> implements MyMap<K, V> {
     }
 
     private int hashIndex(K key) {
-        return (key == null) ? 0 : (key.hashCode() & 0x7FFFFFFF) % tableLength;
+        if (tableLength == 0) {
+            return 0;
+        } else {
+            return (key == null) ? 0 : (key.hashCode() & 0x7FFFFFFF) % tableLength;
+        }
     }
 
     private static class Node<K, V> {
